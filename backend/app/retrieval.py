@@ -1,14 +1,17 @@
 """RAG retrieval and generation pipeline."""
 import structlog
-from llm import chat, embed
-from chunking import chunk_text
-from vector_store import store
-from config import get_settings
+from .llm import chat, embed
+from .chunking import chunk_text
+from .vector_store import store
+from .config import get_settings
 
 log = structlog.get_logger()
 
 
 class RAGPipeline:
+    def __init__(self):
+        self._docs: list[str] = []
+
     async def index_document(self, doc_id: str, text: str, metadata: dict = None):
         s = get_settings()
         chunks = chunk_text(text, s.chunk_size, s.chunk_overlap)
@@ -17,6 +20,7 @@ class RAGPipeline:
             embeddings = await embed([chunk])
             await store.add(f"{doc_id}_{i}", chunk, embeddings[0], doc_id,
                             {"chunk_index": i, **(metadata or {})})
+        self._docs.append(doc_id)
         log.info("index_done", doc_id=doc_id, chunks=len(chunks))
         return len(chunks)
 
@@ -28,8 +32,7 @@ class RAGPipeline:
         context_docs = await store.search(query_emb, k)
         context = "\n\n".join(d["text"] for d in context_docs)
         prompt = (
-            "You are a knowledgeable assistant. Use the provided context to answer the question.
-"
+            "You are a knowledgeable assistant. Use the provided context to answer the question.\n\n"
             f"Context:\n{context}\n\nQuestion: {question}\n\nAnswer:"
         )
         answer = await chat([{"role": "user", "content": prompt}], temperature=0.3)

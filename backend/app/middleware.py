@@ -3,6 +3,9 @@ import time
 import uuid
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+
+from .auth import init_auth_managers
 
 log = structlog.get_logger()
 
@@ -26,10 +29,21 @@ class ErrorMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         except Exception as e:
             log.exception("unhandled_error", path=request.url.path, error=str(e))
-            from starlette.responses import JSONResponse
             return JSONResponse(status_code=500, content={"error": "Internal server error"})
 
 
+class SessionInitMiddleware(BaseHTTPMiddleware):
+    """Initialize auth managers on first request."""
+    _initialized = False
+
+    async def dispatch(self, request, call_next):
+        if not SessionInitMiddleware._initialized:
+            init_auth_managers()
+            SessionInitMiddleware._initialized = True
+        return await call_next(request)
+
+
 def register_middleware(app):
+    app.add_middleware(SessionInitMiddleware)
     app.add_middleware(RequestLoggerMiddleware)
     app.add_middleware(ErrorMiddleware)

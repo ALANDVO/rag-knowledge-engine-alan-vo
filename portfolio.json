@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "rag-knowledge-engine-alan-vo",
+  "owner": "ALANDVO",
+  "email": "alanvo@gmail.com",
+  "domain": "AI/ML - Retrieval-Augmented Generation",
+  "workflows": [
+    "Ingest documents and build searchable knowledge base with semantic chunking",
+    "Query knowledge base using natural language with RAG-powered answers and source citations",
+    "Configure and monitor vector store statistics and system health"
+  ],
+  "auth": "oidc-keycloak-saml-broker",
+  "llm_providers": [
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama"
+  ],
+  "summary": "Work in progress: rag-knowledge-engine-alan-vo",
+  "status": "work-in-progress"
+}
