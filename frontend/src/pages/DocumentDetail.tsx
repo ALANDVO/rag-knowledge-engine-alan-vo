@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 export default function DocumentDetail() {
   const { docId } = useParams<{ docId: string }>();
+  const navigate = useNavigate();
   const [document, setDocument] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -24,6 +27,32 @@ export default function DocumentDetail() {
     };
     fetchDocument();
   }, [docId]);
+
+  const handleDelete = async () => {
+    if (!docId || !window.confirm(`Delete document "${docId}" and all its chunks? This cannot be undone.`)) {
+      return;
+    }
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const r = await fetch(`http://localhost:8000/api/documents/${docId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ detail: "Delete failed" }));
+        throw new Error(err.detail || "Delete failed");
+      }
+      navigate("/documents");
+    } catch (e) {
+      setDeleteError(String(e));
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -56,10 +85,33 @@ export default function DocumentDetail() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <h1>{document.doc_id}</h1>
-        <Link to="/documents" style={{ color: "#3b82f6" }}>
-          ← Back to Documents
-        </Link>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <Link to="/documents" style={{ color: "#3b82f6" }}>
+            ← Back to Documents
+          </Link>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "#ef4444",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              cursor: deleting ? "not-allowed" : "pointer",
+              opacity: deleting ? 0.7 : 1,
+            }}
+          >
+            {deleting ? "Deleting..." : "Delete Document"}
+          </button>
+        </div>
       </div>
+
+      {deleteError && (
+        <div style={{ marginBottom: "1rem", padding: "1rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6, color: "#dc2626" }}>
+          {deleteError}
+        </div>
+      )}
 
       <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "#f8fafc", borderRadius: 8 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
