@@ -106,9 +106,38 @@ class TestDocumentsEndpoint:
             assert set(data["documents"]) == {"doc1", "doc2"} | initial_doc_ids
         finally:
             # Clean up test records
-            asyncio.run(store.delete_document("doc1"))
             asyncio.run(store.delete_document("doc2"))
-    """Tests for /api/query endpoint."""
+
+    def test_delete_document_success(self, client, auth_headers):
+        from app.vector_store import store
+        import asyncio
+        # Add a document first
+        asyncio.run(store.add("doc1_0", "text1", [1.0, 0.0], "doc1", {}))
+        asyncio.run(store.add("doc1_1", "text2", [0.0, 1.0], "doc1", {}))
+        try:
+            response = client.delete("/api/documents/doc1", headers=auth_headers)
+            assert response.status_code == 200
+            data = response.json()
+            assert data["doc_id"] == "doc1"
+            assert data["deleted_chunks"] == 2
+            assert data["status"] == "deleted"
+            # Verify it's gone
+            doc_ids = asyncio.run(store.get_doc_ids())
+            assert "doc1" not in doc_ids
+        finally:
+            asyncio.run(store.delete_document("doc1"))
+
+    def test_delete_document_not_found(self, client, auth_headers):
+        response = client.delete("/api/documents/nonexistent", headers=auth_headers)
+        # Should return 200 with deleted_chunks=0
+        assert response.status_code == 200
+        data = response.json()
+        assert data["doc_id"] == "nonexistent"
+        assert data["deleted_chunks"] == 0
+
+
+
+class TestQueryEndpoint:
 
     def test_query_requires_question(self, client, auth_headers):
         response = client.post("/api/query", headers=auth_headers, json={})

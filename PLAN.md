@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-document-extraction
+document-deletion
 
 ## Roadmap
 
@@ -80,4 +80,20 @@ Acceptance:
 Implementation: `backend/app/ingestion.py`, `backend/requirements.txt`
 
 Tests: `backend/tests/test_ingestion.py`
+
+### document-deletion — Document Deletion API and UI
+
+Status: done
+
+Acceptance:
+- DELETE /api/documents/{doc_id} endpoint removes document and all chunks
+- Requires operator role for deletion
+- CSRF protection on delete endpoint
+- Frontend delete button on Document Detail page with confirmation
+- Returns count of deleted chunks
+- Document disappears from list after deletion
+
+Implementation: `backend/app/routes.py`, `frontend/src/pages/DocumentDetail.tsx`
+
+Tests: `backend/tests/test_routes.py`, `frontend/src/pages/__tests__/Documents.test.tsx`
 

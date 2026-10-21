@@ -292,6 +292,18 @@ async def export_knowledge_base(user: User = Depends(require_role("operator"))):
         "documents": docs,
     }
 
+@router.delete("/documents/{doc_id}")
+async def delete_document(
+    doc_id: str,
+    request: Request,
+    response: Response,
+    user: User = Depends(require_role("operator")),
+):
+    await validate_csrf(request, user)
+    from .vector_store import store
+    deleted = await store.delete_document(doc_id)
+    log.info("api_delete_document", doc_id=doc_id, deleted=deleted, user=user.sub)
+    return {"doc_id": doc_id, "deleted_chunks": deleted, "status": "deleted"}
 
 # Import secrets at top level for login endpoint
 import secrets

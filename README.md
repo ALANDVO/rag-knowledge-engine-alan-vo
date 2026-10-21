@@ -3,8 +3,7 @@
 > Work in progress. This checkpoint may be incomplete or fail tests. See PLAN.md and STATUS.md before use.
 
 
-Enterprise-grade Retrieval-Augmented Generation platform with document ingestion, semantic chunking, persistent vector search, and LLM-powered Q&A.
-
+Enterprise-grade Retrieval-Augmented Generation platform with document ingestion, semantic chunking, persistent vector search, LLM-powered Q&A, and **document deletion**.
 ## Architecture
 
 ```
@@ -26,13 +25,13 @@ Enterprise-grade Retrieval-Augmented Generation platform with document ingestion
 - Cosine similarity vector search with **SQLite-persistent store**
 - RAG pipeline: context retrieval -> LLM generation with source citations
 - Multi-provider LLM client: OpenAI-compatible, Anthropic, Google Gemini, Ollama
-- Document listing, detail view, and knowledge base export
+- Document listing, detail view, **deletion**, and knowledge base export
 - OIDC/Keycloak authentication with session cookies, PKCE, and CSRF protection
 - Role-based access control (viewer, operator, admin)
 - Structured JSON logging with structlog
 - Docker + docker-compose deployment with persistent volumes
 - React/TypeScript dashboard with Dashboard, Documents, Query, Settings, Document Detail pages
-- Comprehensive test suite (136 backend, 25 frontend tests)
+- Comprehensive test suite (138 backend, 25 frontend tests)
 - CI/CD with GitHub Actions
 
 ## API Reference
@@ -43,6 +42,7 @@ Enterprise-grade Retrieval-Augmented Generation platform with document ingestion
 | POST | /api/documents/upload | Upload and ingest a file |
 | GET | /api/documents | List all documents |
 | GET | /api/documents/{doc_id} | Get document details |
+| DELETE | /api/documents/{doc_id} | Delete a document and all chunks |
 | POST | /api/query | Query the knowledge base |
 | GET | /api/stats | Get vector store stats |
 | GET | /api/export | Export knowledge base |

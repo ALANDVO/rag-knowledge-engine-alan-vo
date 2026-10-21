@@ -52,8 +52,13 @@ def client():
 
 @pytest.fixture
 def auth_headers():
-    """Authorization headers for testing."""
     return {"Authorization": "Bearer sso_placeholder"}
+
+
+@pytest.fixture
+def viewer_headers():
+    """Authorization headers for viewer role (no operator permissions)."""
+    return {"Authorization": "Bearer viewer_placeholder"}
 
 
 @pytest.fixture(autouse=True)

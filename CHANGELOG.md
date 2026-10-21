@@ -1,9 +1,22 @@
 # Changelog
 
-## 1.1.0 — work-in-progress checkpoint
+## 1.2.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
 
+## 1.3.0 — 2026-10-21
+
+### Added
+- **Document Deletion** API and UI
+  - DELETE /api/documents/{doc_id} endpoint removes document and all chunks
+  - Requires operator role for deletion
+  - CSRF protection on delete endpoint
+  - Frontend delete button on Document Detail page with confirmation dialog
+  - Returns count of deleted chunks
+  - Document disappears from list after deletion
+- New backend tests for delete endpoint (success, not found)
+
+## 1.1.0 — work-in-progress checkpoint
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

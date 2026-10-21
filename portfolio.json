@@ -17,5 +17,6 @@
     "ollama"
   ],
   "summary": "Work in progress: rag-knowledge-engine-alan-vo",
+  "version": "1.3.0",
   "status": "work-in-progress"
 }

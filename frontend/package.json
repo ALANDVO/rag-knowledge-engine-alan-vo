@@ -1,8 +1,12 @@
 {
   "name": "rag-knowledge-frontend",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "private": true,
-  "author": "alanvo@gmail.com",
+  "author": {
+    "name": "Alan Vo",
+    "email": "alanvo@gmail.com",
+    "url": "https://github.com/ALANDVO"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
