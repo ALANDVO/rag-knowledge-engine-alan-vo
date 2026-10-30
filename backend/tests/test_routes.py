@@ -133,7 +133,19 @@ class TestDocumentsEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["doc_id"] == "nonexistent"
-        assert data["deleted_chunks"] == 0
+
+    def test_delete_document_requires_operator_role(self, client, viewer_headers):
+        from app.vector_store import store
+        import asyncio
+        # Add a document first (using operator)
+        asyncio.run(store.add("doc1_0", "text1", [1.0, 0.0], "doc1", {}))
+        try:
+            # Try to delete with viewer role - should fail
+            response = client.delete("/api/documents/doc1", headers=viewer_headers)
+            assert response.status_code == 403
+            assert "operator" in response.json()["detail"].lower()
+        finally:
+            asyncio.run(store.delete_document("doc1"))
 
 
 

@@ -265,15 +265,17 @@ async def get_current_user(request: Request) -> User:
     auth_header = request.headers.get("Authorization", "")
     if auth_header.startswith("Bearer "):
         token = auth_header[7:]
-        if token == "sso_placeholder" or not settings.require_sso:
-            # Accept placeholder token for testing
+        if token == "sso_placeholder":
+            # Accept placeholder token for testing with all roles
             return User(sub="test-user", email="test@example.com", name="Test User",
                         roles=["viewer", "operator", "admin"], session_id="test-session")
+        if not settings.require_sso:
+            # SSO disabled: accept any token as viewer for testing
+            return User(sub="test-user", email="test@example.com", name="Test User",
+                        roles=["viewer"], session_id="test-session")
         if settings.require_sso and token != "sso_placeholder":
             log.warning("auth_check", token_preview=token[:10])
         # For other tokens, fall through to session check
-
-    # Require SSO: check session cookie
     session_cookie = request.cookies.get("session")
     if not session_cookie:
         raise HTTPException(status_code=401, detail="Not authenticated")
