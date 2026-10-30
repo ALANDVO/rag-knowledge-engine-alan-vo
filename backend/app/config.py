@@ -12,6 +12,7 @@ class Settings:
     chunk_overlap: int = 128
     top_k: int = 5
     require_sso: bool = True
+    cors_origins: list[str] = field(default_factory=lambda: ["http://localhost:3000"])
     llm_model: str = "gpt-4"
     embedding_model: str = "text-embedding-3-small"
     vector_db_path: str = "data/vectors.db"

@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.4.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
+## 1.2.1 — 2026-10-30
+
+### Fixed
+- **CORS configuration** now properly echoes the allowed origin instead of returning `*` when credentials are enabled (complies with CORS spec)
+- Added `CORS_ORIGINS` configuration setting with default `http://localhost:3000`
+- **Authentication logic** fixed to properly enforce operator role requirement for document deletion when SSO is disabled (test mode)
+  - `sso_placeholder` token gets full roles (viewer, operator, admin) for backward compatibility
+  - Other tokens with SSO disabled get viewer role only
+  - This ensures role-based access control works correctly in test environments
+- Added test for operator role requirement on DELETE /api/documents/{doc_id} endpoint
+
+### Changed
+- Updated `.env.example` with `CORS_ORIGINS` setting
+- All 139 backend tests passing (added 1 new test)
+- All 25 frontend tests passing
+
 ## 1.2.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
@@ -105,7 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - React/TypeScript frontend with Dashboard, Documents, Query, Settings, and Document Detail pages
 - In-memory vector store with cosine similarity search
 - Semantic and fixed-size text chunking with configurable overlap
-- Multi-provider LLM client (OpenAI-compatible, Anthropic, Gemini, Ollama) with mock fallback
+- Multi-provider LLM client (OpenAI-compatible, Anthropic, Gemini, Ollora) with mock fallback
 - File upload document ingestion (PDF, DOCX, HTML, TXT, MD)
 - Document listing and detail views
 - Export endpoint for knowledge base backup
@@ -125,3 +145,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - String formatting in RAG pipeline prompt template
 - Chunking overlap validation
 - Cosine similarity floating-point precision handling
+
