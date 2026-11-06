@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../App";
 
 export default function DocumentDetail() {
   const { docId } = useParams<{ docId: string }>();
+  const { csrfToken } = useAuth();
   const navigate = useNavigate();
   const [document, setDocument] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ export default function DocumentDetail() {
       if (!docId) return;
       setLoading(true);
       try {
-        const r = await fetch(`http://localhost:8000/api/documents/${docId}`);
+        const r = await fetch(`http://localhost:8000/api/documents/${docId}`, { credentials: "include" });
         if (!r.ok) throw new Error("Document not found");
         const data = await r.json();
         setDocument(data);
@@ -39,6 +41,7 @@ export default function DocumentDetail() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
         },
         credentials: "include",
       });

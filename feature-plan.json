@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_feature": "document-deletion",
+  "current_feature": "csrf-token-fix",
   "features": [
     {
       "id": "baseline-completion",
@@ -169,6 +169,27 @@
       ],
       "tests": [
         "backend/tests/test_routes.py",
+        "frontend/src/pages/__tests__/Documents.test.tsx"
+      ]
+    }
+    ,
+    {
+      "id": "csrf-token-fix",
+      "title": "CSRF Token Support for Document Mutations",
+      "status": "done",
+      "acceptance": [
+        "POST /api/documents includes X-CSRF-Token header",
+        "POST /api/documents/upload includes X-CSRF-Token header",
+        "DELETE /api/documents/{doc_id} includes X-CSRF-Token header",
+        "AuthContext provides csrfToken and refreshCsrfToken",
+        "Frontend mutations work with SSO enabled (require_sso=true)"
+      ],
+      "implementation": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Documents.tsx",
+        "frontend/src/pages/DocumentDetail.tsx"
+      ],
+      "tests": [
         "frontend/src/pages/__tests__/Documents.test.tsx"
       ]
     }

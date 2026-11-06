@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../App";
 
 export default function Documents() {
+  const { csrfToken } = useAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -10,13 +12,24 @@ export default function Documents() {
   const [documents, setDocuments] = useState<Array<{doc_id: string; title: string; source: string; chunks: number}>>([]);
   const [loading, setLoading] = useState(false);
 
+  const apiFetch = async (url: string, options: RequestInit = {}) => {
+    return fetch(url, {
+      ...options,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+      },
+    });
+  };
+
   const submit = async () => {
     setError(null);
     setLoading(true);
     try {
-      const r = await fetch("http://localhost:8000/api/documents", {
+      const r = await apiFetch("http://localhost:8000/api/documents", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content }),
       });
       const data = await r.json();
@@ -46,6 +59,10 @@ export default function Documents() {
       const r = await fetch("http://localhost:8000/api/documents/upload", {
         method: "POST",
         body: formData,
+        credentials: "include",
+        headers: {
+          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+        },
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.detail || "Failed to upload");
@@ -62,7 +79,7 @@ export default function Documents() {
 
   const loadDocuments = async () => {
     try {
-      const r = await fetch("http://localhost:8000/api/documents");
+      const r = await fetch("http://localhost:8000/api/documents", { credentials: "include" });
       const data = await r.json();
       setDocuments(data.documents?.map((doc_id: string) => ({ doc_id })) || []);
     } catch (e) {
