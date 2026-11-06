@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-document-deletion
+csrf-token-fix
 
 ## Roadmap
 
@@ -96,4 +96,19 @@ Acceptance:
 Implementation: `backend/app/routes.py`, `frontend/src/pages/DocumentDetail.tsx`
 
 Tests: `backend/tests/test_routes.py`, `frontend/src/pages/__tests__/Documents.test.tsx`
+
+### csrf-token-fix — CSRF Token Support for Document Mutations
+
+Status: done
+
+Acceptance:
+- POST /api/documents includes X-CSRF-Token header
+- POST /api/documents/upload includes X-CSRF-Token header
+- DELETE /api/documents/{doc_id} includes X-CSRF-Token header
+- AuthContext provides csrfToken and refreshCsrfToken
+- Frontend mutations work with SSO enabled (require_sso=true)
+
+Implementation: `frontend/src/App.tsx`, `frontend/src/pages/Documents.tsx`, `frontend/src/pages/DocumentDetail.tsx`
+
+Tests: `frontend/src/pages/__tests__/Documents.test.tsx`
 

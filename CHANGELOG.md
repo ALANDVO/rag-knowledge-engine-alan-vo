@@ -1,9 +1,29 @@
 # Changelog
 
+## 1.5.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.4.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
 
+### Added
+- **CSRF Token Support for Document Mutations** (fixes CSRF protection gap)
+  - POST /api/documents now includes X-CSRF-Token header
+  - POST /api/documents/upload now includes X-CSRF-Token header
+  - DELETE /api/documents/{doc_id} now includes X-CSRF-Token header
+  - AuthContext provides csrfToken and refreshCsrfToken for all protected pages
+  - Frontend mutations now work correctly when SSO is enabled (require_sso=true)
+- Updated feature-plan.json with csrf-token-fix feature
+
+### Changed
+- AuthContext extended with csrfToken state and refreshCsrfToken function
+- Documents.tsx uses apiFetch helper with CSRF token for ingest and upload
+- DocumentDetail.tsx includes CSRF token in delete request
+
+### Fixed
+- CSRF protection was enforced by backend but frontend wasn't sending tokens for document mutations (except Settings page)
 ## 1.2.1 — 2026-10-30
 
 ### Fixed
