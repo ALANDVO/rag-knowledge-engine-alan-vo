@@ -112,3 +112,6 @@ Implementation: `frontend/src/App.tsx`, `frontend/src/pages/Documents.tsx`, `fro
 
 Tests: `frontend/src/pages/__tests__/Documents.test.tsx`
 
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

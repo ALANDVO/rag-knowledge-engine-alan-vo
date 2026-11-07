@@ -166,3 +166,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chunking overlap validation
 - Cosine similarity floating-point precision handling
 
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

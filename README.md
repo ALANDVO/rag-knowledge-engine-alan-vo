@@ -126,3 +126,7 @@ cd frontend && npm test
 ---
 
 Contact: alanvo@gmail.com
+
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)
