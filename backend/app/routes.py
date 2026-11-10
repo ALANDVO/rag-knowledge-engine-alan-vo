@@ -31,7 +31,7 @@ class IngestRequest(BaseModel):
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=2, max_length=2000)
     top_k: int = Field(5, ge=1, le=20)
-
+    doc_ids: list[str] | None = Field(None, description="Optional list of document IDs to filter search")
 
 class DocumentResponse(BaseModel):
     doc_id: str
@@ -230,8 +230,8 @@ async def query(
     user: User = Depends(get_current_user),
 ):
     await validate_csrf(request, user)
-    log.info("api_query", question=req.question[:80], user=user.sub)
-    return await rag.query(req.question, req.top_k)
+    log.info("api_query", question=req.question[:80], user=user.sub, doc_ids=req.doc_ids)
+    return await rag.query(req.question, req.top_k, req.doc_ids)
 
 
 @router.get("/stats")

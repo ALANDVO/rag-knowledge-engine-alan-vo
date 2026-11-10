@@ -1,8 +1,25 @@
 # Changelog
 
+## 1.6.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.5.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
+
+### Added
+- **Document Search Filtering by Document ID**
+  - New optional `doc_ids` parameter on POST /api/query endpoint
+  - Vector store search now supports filtering by document IDs
+  - RAG pipeline query accepts optional `doc_ids` list for scoped searches
+  - Frontend can now limit queries to specific documents
+- New backend tests for doc_ids filtering (vector store and routes)
+
+### Changed
+- Updated QueryRequest model with optional `doc_ids` field
+- Extended VectorStore.search() with optional `doc_ids` and `metadata_filter` parameters
+- Extended RAGPipeline.query() with optional `doc_ids` parameter
 
 ## 1.4.0 — work-in-progress checkpoint
 

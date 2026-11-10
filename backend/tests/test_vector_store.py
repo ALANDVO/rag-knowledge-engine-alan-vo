@@ -94,6 +94,30 @@ class TestVectorStore:
         await store.add("id2", "text2", [1.0, 0.0], "doc2", {})
         doc_ids = await store.get_doc_ids()
         assert doc_ids == {"doc1", "doc2"}
+    @pytest.mark.asyncio
+    async def test_search_filters_by_doc_ids(self, store):
+        """Test that search can filter by document IDs."""
+        await store.add("id1", "text1", [1.0, 0.0], "doc1", {})
+        await store.add("id2", "text2", [0.9, 0.1], "doc1", {})
+        await store.add("id3", "text3", [0.8, 0.2], "doc2", {})
+        
+        # Search only in doc1
+        results = await store.search([1.0, 0.0], top_k=5, doc_ids=["doc1"])
+        assert len(results) == 2
+        assert all(r["doc_id"] == "doc1" for r in results)
+        
+        # Search only in doc2
+        results = await store.search([1.0, 0.0], top_k=5, doc_ids=["doc2"])
+        assert len(results) == 1
+        assert results[0]["doc_id"] == "doc2"
+        
+        # Search in both
+        results = await store.search([1.0, 0.0], top_k=5, doc_ids=["doc1", "doc2"])
+        assert len(results) == 3
+        
+        # Search with non-existent doc_id
+        results = await store.search([1.0, 0.0], top_k=5, doc_ids=["nonexistent"])
+        assert len(results) == 0
 
 class TestVectorRecord:
     """Tests for VectorRecord dataclass."""

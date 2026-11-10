@@ -24,12 +24,12 @@ class RAGPipeline:
         log.info("index_done", doc_id=doc_id, chunks=len(chunks))
         return len(chunks)
 
-    async def query(self, question: str, top_k: int = None) -> dict:
+    async def query(self, question: str, top_k: int = None, doc_ids: list[str] = None) -> dict:
         s = get_settings()
         k = top_k or s.top_k
-        log.info("rag_query", question=question[:100])
+        log.info("rag_query", question=question[:100], doc_ids=doc_ids)
         query_emb = (await embed([question]))[0]
-        context_docs = await store.search(query_emb, k)
+        context_docs = await store.search(query_emb, k, doc_ids=doc_ids)
         context = "\n\n".join(d["text"] for d in context_docs)
         prompt = (
             "You are a knowledgeable assistant. Use the provided context to answer the question.\n\n"

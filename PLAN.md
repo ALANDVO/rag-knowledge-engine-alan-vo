@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-csrf-token-fix
+document-search-filter
 
 ## Roadmap
 
@@ -111,6 +111,21 @@ Acceptance:
 Implementation: `frontend/src/App.tsx`, `frontend/src/pages/Documents.tsx`, `frontend/src/pages/DocumentDetail.tsx`
 
 Tests: `frontend/src/pages/__tests__/Documents.test.tsx`
+
+### document-search-filter — Document Search Filtering by Document ID
+
+Status: done
+
+Acceptance:
+- POST /api/query accepts optional `doc_ids` array to filter search to specific documents
+- Vector store search supports `doc_ids` parameter for efficient filtering
+- RAG pipeline query passes doc_ids through to vector store
+- Returns only results from specified documents
+- Backend tests cover vector store filtering and API endpoint
+
+Implementation: `backend/app/vector_store.py`, `backend/app/retrieval.py`, `backend/app/routes.py`
+
+Tests: `backend/tests/test_vector_store.py::TestVectorStore::test_search_filters_by_doc_ids`, `backend/tests/test_routes.py::TestQueryEndpoint::test_query_with_doc_ids_filter`
 
 ---
 

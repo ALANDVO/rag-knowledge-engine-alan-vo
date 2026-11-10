@@ -186,6 +186,23 @@ class TestQueryEndpoint:
             assert data["question"] == "What is RAG?"
             assert "RAG stands for" in data["answer"]
             assert len(data["sources"]) == 1
+    def test_query_with_doc_ids_filter(self, client, auth_headers):
+        with patch("app.routes.rag.query", new_callable=AsyncMock) as mock_query:
+            mock_query.return_value = {
+                "question": "What is RAG?",
+                "answer": "RAG stands for Retrieval-Augmented Generation.",
+                "sources": [{"doc_id": "doc1", "score": 0.9, "text_preview": "RAG is..."}],
+                "context_chunks": 1
+            }
+            response = client.post("/api/query", headers=auth_headers, 
+                                   json={"question": "What is RAG?", "doc_ids": ["doc1", "doc2"]})
+            assert response.status_code == 200
+            data = response.json()
+            assert data["question"] == "What is RAG?"
+            mock_query.assert_called_once()
+            # Verify doc_ids was passed (positional arg 3)
+            call_args = mock_query.call_args
+            assert call_args.args[2] == ["doc1", "doc2"]
 
 
 class TestStatsEndpoint:

@@ -70,38 +70,59 @@ class VectorStore:
             await db.commit()
         log.debug("vector_added", id=rec_id, doc_id=doc_id)
 
-    async def search(self, query_embedding: list[float], top_k: int = 5) -> list[dict]:
+    async def search(self, query_embedding: list[float], top_k: int = 5,
+                     doc_ids: list[str] = None, metadata_filter: dict = None) -> list[dict]:
         await self._init_db()
+        # Build WHERE clause for optional filters
+        where_conditions = []
+        params = []
+        
+        if doc_ids:
+            placeholders = ",".join("?" * len(doc_ids))
+            where_conditions.append(f"doc_id IN ({placeholders})")
+            params.extend(doc_ids)
+        
+        if metadata_filter:
+            for key, value in metadata_filter.items():
+                where_conditions.append(f"json_extract(metadata, '$.{key}') = ?")
+                params.append(value)
+        
+        where_clause = ""
+        if where_conditions:
+            where_clause = "WHERE " + " AND ".join(where_conditions)
+        
+        # We need to compute cosine similarity in Python since SQLite doesn't have it natively
+        # First fetch candidates, then rank in memory
+        # Limit candidates to avoid loading too many rows
+        candidate_limit = top_k * 10 if top_k else 50
+        query = f"""
+            SELECT id, text, embedding, doc_id, metadata
+            FROM vectors
+            {where_clause}
+            LIMIT ?
+        """
+        params.append(candidate_limit)
+        
         async with aiosqlite.connect(self.db_path) as db:
-            cursor = await db.execute(
-                "SELECT id, text, embedding, doc_id, metadata FROM vectors"
-            )
-            rows = await cursor.fetchall()
-
-        if not rows:
-            return []
-
-        scored = []
+            db.row_factory = aiosqlite.Row
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+        
+        results = []
         for row in rows:
-            rec_id, text, emb_json, doc_id, meta_json = row
-            embedding = json.loads(emb_json)
-            sim = cosine_similarity(query_embedding, embedding)
-            metadata = json.loads(meta_json) if meta_json else {}
-            scored.append((sim, {
-                "id": rec_id,
-                "text": text,
-                "doc_id": doc_id,
-                "metadata": metadata
-            }))
-
-        scored.sort(key=lambda x: x[0], reverse=True)
-        results = [
-            {"id": r["id"], "text": r["text"], "score": s, "doc_id": r["doc_id"],
-             "metadata": r["metadata"]}
-            for s, r in scored[:top_k]
-        ]
-        log.info("vector_search", query_dims=len(query_embedding), results=len(results))
-        return results
+            emb = json.loads(row["embedding"])
+            score = cosine_similarity(query_embedding, emb)
+            results.append({
+                "id": row["id"],
+                "text": row["text"],
+                "score": score,
+                "doc_id": row["doc_id"],
+                "metadata": json.loads(row["metadata"]),
+            })
+        
+        # Sort by score descending
+        results.sort(key=lambda x: x["score"], reverse=True)
+        return results[:top_k]
 
     @property
     async def count(self) -> int:
