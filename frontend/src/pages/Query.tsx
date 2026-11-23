@@ -4,14 +4,20 @@ export default function Query() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [sources, setSources] = useState<any[] | null>(null);
+  const [documents, setDocuments] = useState<Array<{doc_id: string; title: string}> | null>(null);
+  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
 
   const submit = async () => {
     setAnswer(null);
     setSources(null);
+    const body = { question };
+    if (selectedDocIds && selectedDocIds.length > 0) {
+      body.doc_ids = selectedDocIds;
+    }
     const r = await fetch("http://localhost:8000/api/query", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify(body),
     }).then((r) => r.json());
     setAnswer(r.answer);
     setSources(r.sources);
@@ -28,6 +34,20 @@ export default function Query() {
           rows={3}
           style={{ width: "100%", padding: "0.5rem", marginBottom: 8, border: "1px solid #cbd5e1", borderRadius: 6 }}
         />
+        <select multiple
+          style={{ width: "100%", padding: "0.5rem", marginBottom: 8, border: "1px solid #cbd5e1", borderRadius: 6 }}
+          value={selectedDocIds}
+          onChange={(e) => setSelectedDocIds(Array.from(e.target.options).filter(o => o.selected).map(o => o.value))}
+          size={8}
+        >
+          {documents?.map((d) => (
+            <option key={d.doc_id} value={d.doc_id}>
+              {d.doc_id}
+            </option>
+          )) || (
+            <option>No documents loaded</option>
+          )}
+        </select>
         <button onClick={submit} style={{ padding: "0.5rem 1.5rem", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>
           Search
         </button>
