@@ -78,6 +78,8 @@ class VectorStore:
         params = []
         
         if doc_ids:
+            # Deduplicate doc_ids to avoid redundant filtering
+            doc_ids = list(dict.fromkeys(doc_ids))
             placeholders = ",".join("?" * len(doc_ids))
             where_conditions.append(f"doc_id IN ({placeholders})")
             params.extend(doc_ids)
